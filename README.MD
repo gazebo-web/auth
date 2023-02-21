@@ -1,6 +1,6 @@
 # Auth
 
-Auth is a gRPC service implementation of the fine-grained [Authorization API](github.com/OpenSourceRobotics/api).
+Auth is a gRPC service implementation of the fine-grained [Authorization API](https://github.com/OpenSourceRobotics/api).
 
 It is capable of defining users and organizations, and handling authorization for them. The specific authorization 
 scheme can be configured through the selection of modular authentication backends.
