@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-// bearerToken is an Authentication implementation using Bearer tokens and JWT as an authentication system.
-type bearerToken struct {
+// tokens is an Authentication implementation using JSON Web Tokens as an authentication system.
+type tokens struct {
 	publicKey []byte
 }
 
 // VerifyCredentials verifies that the given credentials are valid for the current provider.
-func (auth *bearerToken) VerifyCredentials(ctx context.Context, credentials Credentials) error {
+func (auth *tokens) VerifyCredentials(ctx context.Context, credentials Credentials) error {
 	if err := auth.validateScheme(credentials); err != nil {
 		return err
 	}
@@ -30,8 +30,9 @@ func (auth *bearerToken) VerifyCredentials(ctx context.Context, credentials Cred
 	return nil
 }
 
-// validateScheme validates that the given credentials contains a valid Auth0 scheme.
-func (auth *bearerToken) validateScheme(credentials Credentials) error {
+// validateScheme validates that the given credentials contains a valid scheme.
+// This method allows to enforce developers to pass the correct type of credentials.
+func (auth *tokens) validateScheme(credentials Credentials) error {
 	if len(credentials.Scheme) == 0 {
 		return errors.New("no scheme provided")
 	}
@@ -42,7 +43,7 @@ func (auth *bearerToken) validateScheme(credentials Credentials) error {
 }
 
 // validateProvider validates that the given credentials contains a valid Auth0 token.
-func (auth *bearerToken) validateToken(credentials Credentials) error {
+func (auth *tokens) validateToken(credentials Credentials) error {
 	if len(credentials.Token) == 0 {
 		return errors.New("no token provided")
 	}
@@ -65,14 +66,14 @@ func (auth *bearerToken) validateToken(credentials Credentials) error {
 	return nil
 }
 
-func (auth *bearerToken) keyFunc(token *jwt.Token) (interface{}, error) {
+func (auth *tokens) keyFunc(token *jwt.Token) (interface{}, error) {
 	return jwt.ParseRSAPublicKeyFromPEM(auth.publicKey)
 }
 
-// NewBearerAuthentication initializes a new Authentication implementation using Bearer tokens and JWT as an
-// authentication system. It receives the public key used to verify the signature of JWT
-func NewBearerAuthentication(key []byte) Authentication {
-	return &bearerToken{
+// NewTokenAuthentication initializes a new Authentication implementation using tokens and JWT as an
+// authentication system. It receives the public key used to verify the signature of JWTs.
+func NewTokenAuthentication(key []byte) Authentication {
+	return &tokens{
 		publicKey: key,
 	}
 }

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type bearerTokenTestSuite struct {
+type tokenTestSuite struct {
 	suite.Suite
 	authentication Authentication
 	token          *jwt.Token
@@ -20,11 +20,11 @@ type bearerTokenTestSuite struct {
 	privateKey     *rsa.PrivateKey
 }
 
-func TestBearerTokenTestSuite(t *testing.T) {
-	suite.Run(t, new(bearerTokenTestSuite))
+func TestTokenTestSuite(t *testing.T) {
+	suite.Run(t, new(tokenTestSuite))
 }
 
-func (suite *bearerTokenTestSuite) SetupSuite() {
+func (suite *tokenTestSuite) SetupSuite() {
 	var err error
 	suite.Require().NoError(err)
 	suite.token = jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims(map[string]interface{}{
@@ -41,14 +41,14 @@ func (suite *bearerTokenTestSuite) SetupSuite() {
 
 	suite.publicKey, err = os.ReadFile("./testdata/key.pem")
 
-	suite.authentication = NewBearerAuthentication(suite.publicKey)
+	suite.authentication = NewTokenAuthentication(suite.publicKey)
 }
 
-func (suite *bearerTokenTestSuite) SetupTest() {
+func (suite *tokenTestSuite) SetupTest() {
 
 }
 
-func (suite *bearerTokenTestSuite) TestVerifyCredentials_InvalidScheme() {
+func (suite *tokenTestSuite) TestVerifyCredentials_InvalidScheme() {
 	ctx := context.Background()
 	creds := Credentials{
 		Scheme: "",
@@ -63,7 +63,7 @@ func (suite *bearerTokenTestSuite) TestVerifyCredentials_InvalidScheme() {
 	suite.Assert().Error(suite.authentication.VerifyCredentials(ctx, creds))
 }
 
-func (suite *bearerTokenTestSuite) TestVerifyCredentials_InvalidToken() {
+func (suite *tokenTestSuite) TestVerifyCredentials_InvalidToken() {
 	ctx := context.Background()
 	creds := Credentials{
 		Scheme: SchemeBearer,
@@ -96,7 +96,7 @@ func (suite *bearerTokenTestSuite) TestVerifyCredentials_InvalidToken() {
 	suite.Assert().Error(suite.authentication.VerifyCredentials(ctx, creds))
 }
 
-func (suite *bearerTokenTestSuite) TestVerifyCredentials_Success() {
+func (suite *tokenTestSuite) TestVerifyCredentials_Success() {
 	ctx := context.Background()
 
 	signedToken, err := suite.token.SignedString(suite.privateKey)
@@ -109,10 +109,10 @@ func (suite *bearerTokenTestSuite) TestVerifyCredentials_Success() {
 	suite.Assert().NoError(suite.authentication.VerifyCredentials(ctx, creds))
 }
 
-func (suite *bearerTokenTestSuite) TearDownTest() {
+func (suite *tokenTestSuite) TearDownTest() {
 
 }
 
-func (suite *bearerTokenTestSuite) TearDownSuite() {
+func (suite *tokenTestSuite) TearDownSuite() {
 
 }
