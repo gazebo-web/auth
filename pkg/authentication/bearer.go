@@ -69,8 +69,9 @@ func (auth *bearerToken) keyFunc(token *jwt.Token) (interface{}, error) {
 	return jwt.ParseRSAPublicKeyFromPEM(auth.publicKey)
 }
 
-// NewAuth0 initializes a new Authentication implementation using Auth0 as an authentication provider.
-func NewAuth0(key []byte) Authentication {
+// NewBearerAuthentication initializes a new Authentication implementation using Bearer tokens and JWT as an
+// authentication system. It receives the public key used to verify the signature of JWT
+func NewBearerAuthentication(key []byte) Authentication {
 	return &bearerToken{
 		publicKey: key,
 	}

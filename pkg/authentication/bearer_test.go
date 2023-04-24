@@ -41,7 +41,7 @@ func (suite *bearerTokenTestSuite) SetupSuite() {
 
 	suite.publicKey, err = os.ReadFile("./testdata/key.pem")
 
-	suite.authentication = NewAuth0(suite.publicKey)
+	suite.authentication = NewBearerAuthentication(suite.publicKey)
 }
 
 func (suite *bearerTokenTestSuite) SetupTest() {
