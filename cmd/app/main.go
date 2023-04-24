@@ -2,10 +2,10 @@ package main
 
 import (
 	"auth/internal/database"
-	"auth/pkg/config"
-	"auth/pkg/repository"
-	"auth/pkg/service"
 	"github.com/caarlos0/env/v7"
+	"github.com/gazebo-web/auth/pkg/config"
+	"github.com/gazebo-web/auth/pkg/repository"
+	"github.com/gazebo-web/auth/pkg/service"
 	"github.com/gazebo-web/gz-go/v7"
 	"github.com/gazebo-web/gz-go/v7/net"
 	"github.com/gazebo-web/gz-go/v7/telemetry"

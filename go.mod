@@ -1,4 +1,4 @@
-module auth
+module github.com/gazebo-web/auth
 
 go 1.19
 

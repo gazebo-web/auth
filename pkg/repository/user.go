@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"auth/pkg/domain"
+	"github.com/gazebo-web/auth/pkg/domain"
 	"github.com/gazebo-web/gz-go/v7/repository"
 	"github.com/jinzhu/gorm"
 )

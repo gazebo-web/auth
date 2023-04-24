@@ -1,7 +1,7 @@
 package database
 
 import (
-	"auth/pkg/domain"
+	"github.com/gazebo-web/auth/pkg/domain"
 	gormUtils "github.com/gazebo-web/gz-go/v7/database/gorm"
 	"github.com/jinzhu/gorm"
 )
