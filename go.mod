@@ -45,6 +45,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/common v0.11.1 // indirect
 	github.com/rollbar/rollbar-go v1.2.0 // indirect
+	github.com/rs/cors v1.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
