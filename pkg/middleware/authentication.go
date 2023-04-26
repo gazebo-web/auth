@@ -13,8 +13,20 @@ func BearerToken(auth authentication.Authentication) func(next http.Handler) htt
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			h := r.Header.Get("Authorization")
+			if len(h) == 0 {
+				http.Error(w, "No token provided", http.StatusBadRequest)
+				return
+			}
 			hh := strings.Split(h, "Bearer ")
+			if len(hh) != 2 {
+				http.Error(w, "Invalid token", http.StatusBadRequest)
+				return
+			}
 			token := hh[1]
+			if len(token) == 0 {
+				http.Error(w, "No bearer token provided", http.StatusBadRequest)
+				return
+			}
 			err := auth.VerifyCredentials(r.Context(), authentication.Credentials{
 				Scheme: authentication.SchemeBearer,
 				Token:  token,
