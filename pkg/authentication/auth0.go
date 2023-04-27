@@ -7,6 +7,25 @@ import (
 	"strings"
 )
 
+var (
+	// ErrTokenNoProvided is returned when no token is provided.
+	ErrTokenNoProvided = errors.New("no token provided")
+	// ErrTokenInvalid is returned when a certain token is invalid.
+	ErrTokenInvalid = errors.New("token is not valid")
+	// ErrTokenMalformed is returned when the token doesn't match the expected token form.
+	// 	Example: JWT should have 3 parts, header, payload and signature.
+	ErrTokenMalformed = errors.New("token is malformed")
+
+	// ErrJWTNoHeader is returned when a certain JWT contains no header.
+	ErrJWTNoHeader = errors.New("jwt contains no header")
+
+	// ErrJWTNoPayload is returned when a certain JWT contains no payload.
+	ErrJWTNoPayload = errors.New("jwt contains no payload")
+
+	// ErrJWTNoSignature is returned when a certain JWt contains no signature.
+	ErrJWTNoSignature = errors.New("jwt contains no signature")
+)
+
 // auth0 is an Authentication implementation using Auth0 as an authentication provider.
 type auth0 struct {
 	publicKey []byte
@@ -22,7 +41,7 @@ func (auth *auth0) VerifyJWT(ctx context.Context, token string) error {
 		return err
 	}
 	if !parsedToken.Valid {
-		return errors.New("token is not valid")
+		return ErrTokenInvalid
 	}
 	return nil
 }
@@ -30,23 +49,23 @@ func (auth *auth0) VerifyJWT(ctx context.Context, token string) error {
 // validateJWT validates that the given token is a valid JWT.
 func (auth *auth0) validateJWT(token string) error {
 	if len(token) == 0 {
-		return errors.New("no token provided")
+		return ErrTokenNoProvided
 	}
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
-		return errors.New("invalid token")
+		return ErrTokenMalformed
 	}
 	header := parts[0]
 	payload := parts[1]
 	sig := parts[2]
 	if len(header) == 0 {
-		return errors.New("token contains no header")
+		return ErrJWTNoHeader
 	}
 	if len(payload) == 0 {
-		return errors.New("token contains no payload")
+		return ErrJWTNoPayload
 	}
 	if len(sig) == 0 {
-		return errors.New("token contains no signature")
+		return ErrJWTNoSignature
 	}
 	return nil
 }
