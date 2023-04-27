@@ -122,7 +122,7 @@ func setupBearerTokenTest(t *testing.T) http.Handler {
 	require.NoError(t, err)
 
 	// Set up a Bearer token middleware
-	mw := BearerToken(authentication.NewTokenAuthentication(publicKey))
+	mw := BearerToken(authentication.NewAuth0(publicKey))
 
 	// Define handler that will be wrapped by the middleware
 	handler := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

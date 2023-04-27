@@ -27,10 +27,7 @@ func BearerToken(auth authentication.Authentication) func(next http.Handler) htt
 				http.Error(w, "No bearer token provided", http.StatusBadRequest)
 				return
 			}
-			err := auth.VerifyCredentials(r.Context(), authentication.Credentials{
-				Scheme: authentication.SchemeBearer,
-				Token:  token,
-			})
+			err := auth.VerifyJWT(r.Context(), token)
 			if err != nil {
 				http.Error(w, fmt.Sprintf("Failed to verify token: %s", err), http.StatusUnauthorized)
 				return
