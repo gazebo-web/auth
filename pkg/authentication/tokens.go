@@ -14,7 +14,7 @@ type auth0 struct {
 
 // VerifyJWT verifies that the given token is a valid JWT and was correctly signed by Auth0.
 func (auth *auth0) VerifyJWT(ctx context.Context, token string) error {
-	if err := auth.validateToken(token); err != nil {
+	if err := auth.validateJWT(token); err != nil {
 		return err
 	}
 	parsedToken, err := jwt.Parse(token, auth.keyFunc)
@@ -27,8 +27,8 @@ func (auth *auth0) VerifyJWT(ctx context.Context, token string) error {
 	return nil
 }
 
-// validateToken validates that the given token is a valid JWT.
-func (auth *auth0) validateToken(token string) error {
+// validateJWT validates that the given token is a valid JWT.
+func (auth *auth0) validateJWT(token string) error {
 	if len(token) == 0 {
 		return errors.New("no token provided")
 	}
