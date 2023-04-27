@@ -4,6 +4,9 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
+# You can find multiple blocks that have been commented out, the reason for this is to support a MySQL database in a future
+# iteration of this workflow.
+#
 #    env:
 #      IGN_DB_USERNAME: gazebo
 #      IGN_DB_PASSWORD: 1234
