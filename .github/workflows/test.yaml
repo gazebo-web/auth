@@ -42,7 +42,7 @@ jobs:
           cache: true
 
       - name: Test
-        env:
+#        env:
 #          IGN_DB_ADDRESS: "127.0.0.1:${{ job.services.mysql.ports[3306] }}"
         run: |
           go test -timeout 60m -covermode=atomic -coverprofile=coverage.tx -v ./...
