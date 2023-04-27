@@ -11,21 +11,40 @@ import (
 )
 
 func main() {
+	// Get the public key location
 	fp := os.Getenv("AUTHENTICATION_PUBLIC_KEY_FILE")
+
+	// Read the content of the public key
 	f, err := os.ReadFile(fp)
 	if err != nil {
 		log.Fatalln("Failed to read file:", err)
 	}
+
+	// Initialize Authentication component
 	auth := authentication.NewTokenAuthentication(f)
+
+	// Set up bearer token middleware
 	bearer := middleware.BearerToken(auth)
 
+	// Define HTTP handler
+	h := http.Handler(http.HandlerFunc(handler))
+
+	// Wrap handler with bearer token middleware
+	h = bearer(h)
+
+	// Set up CORS policy to Allow-All.
+	h = cors.AllowAll().Handler(h)
+
+	// Set up HTTP server and assign the respective HTTP handler
 	srv := http.Server{
 		Addr:         ":3030",
-		Handler:      cors.AllowAll().Handler(bearer(http.HandlerFunc(handler))),
+		Handler:      h,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  2 * time.Second,
 	}
+
+	// Listen and serve on port 3030
 	log.Println("Listening on", srv.Addr)
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalln("Failed to listen and serve:", err)
