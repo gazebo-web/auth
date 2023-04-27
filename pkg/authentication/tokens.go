@@ -7,47 +7,32 @@ import (
 	"strings"
 )
 
-// tokens is an Authentication implementation using JSON Web Tokens as an authentication system.
-type tokens struct {
+// auth0 is an Authentication implementation using Auth0 as an authentication provider.
+type auth0 struct {
 	publicKey []byte
 }
 
-// VerifyCredentials verifies that the given credentials are valid for the current provider.
-func (auth *tokens) VerifyCredentials(ctx context.Context, credentials Credentials) error {
-	if err := auth.validateScheme(credentials); err != nil {
+// VerifyJWT verifies that the given token is a valid JWT and was correctly signed by Auth0.
+func (auth *auth0) VerifyJWT(ctx context.Context, token string) error {
+	if err := auth.validateToken(token); err != nil {
 		return err
 	}
-	if err := auth.validateToken(credentials); err != nil {
-		return err
-	}
-	token, err := jwt.Parse(credentials.Token, auth.keyFunc)
+	parsedToken, err := jwt.Parse(token, auth.keyFunc)
 	if err != nil {
 		return err
 	}
-	if !token.Valid {
+	if !parsedToken.Valid {
 		return errors.New("token is not valid")
 	}
 	return nil
 }
 
-// validateScheme validates that the given credentials contains a valid scheme.
-// This method allows to enforce developers to pass the correct type of credentials.
-func (auth *tokens) validateScheme(credentials Credentials) error {
-	if len(credentials.Scheme) == 0 {
-		return errors.New("no scheme provided")
-	}
-	if credentials.Scheme != SchemeBearer {
-		return errors.New("invalid scheme, should be a bearer token")
-	}
-	return nil
-}
-
-// validateProvider validates that the given credentials contains a valid Auth0 token.
-func (auth *tokens) validateToken(credentials Credentials) error {
-	if len(credentials.Token) == 0 {
+// validateToken validates that the given token is a valid JWT.
+func (auth *auth0) validateToken(token string) error {
+	if len(token) == 0 {
 		return errors.New("no token provided")
 	}
-	parts := strings.Split(credentials.Token, ".")
+	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
 		return errors.New("invalid token")
 	}
@@ -66,14 +51,14 @@ func (auth *tokens) validateToken(credentials Credentials) error {
 	return nil
 }
 
-func (auth *tokens) keyFunc(token *jwt.Token) (interface{}, error) {
+func (auth *auth0) keyFunc(token *jwt.Token) (interface{}, error) {
 	return jwt.ParseRSAPublicKeyFromPEM(auth.publicKey)
 }
 
-// NewTokenAuthentication initializes a new Authentication implementation using tokens and JWT as an
+// NewAuth0 initializes a new Authentication implementation using auth0 and JWT as an
 // authentication system. It receives the public key used to verify the signature of JWTs.
-func NewTokenAuthentication(key []byte) Authentication {
-	return &tokens{
+func NewAuth0(key []byte) Authentication {
+	return &auth0{
 		publicKey: key,
 	}
 }
