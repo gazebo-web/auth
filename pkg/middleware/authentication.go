@@ -14,7 +14,7 @@ func BearerToken(auth authentication.Authentication) func(next http.Handler) htt
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			h := r.Header.Get("Authorization")
 			if len(h) == 0 {
-				http.Error(w, "No token provided", http.StatusBadRequest)
+				http.Error(w, "No bearer token provided. A bearer token is required to access this resource.", http.StatusBadRequest)
 				return
 			}
 			hh := strings.Split(h, "Bearer ")
