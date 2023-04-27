@@ -21,7 +21,7 @@ func main() {
 	}
 
 	// Initialize Authentication component
-	auth := authentication.NewTokenAuthentication(f)
+	auth := authentication.NewAuth0(f)
 
 	// Set up bearer token middleware
 	bearer := middleware.BearerToken(auth)
