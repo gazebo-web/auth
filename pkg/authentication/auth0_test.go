@@ -38,8 +38,10 @@ func (suite *tokenTestSuite) SetupSuite() {
 	// Use the PEM decoder and parse the private key
 	block, _ := pem.Decode(pk)
 	suite.privateKey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+	suite.Require().NoError(err)
 
 	suite.publicKey, err = os.ReadFile("./testdata/key.pem")
+	suite.Require().NoError(err)
 
 	suite.authentication = NewAuth0(suite.publicKey)
 }
