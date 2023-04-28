@@ -3,6 +3,7 @@ package authentication
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"strings"
 )
@@ -10,20 +11,9 @@ import (
 var (
 	// ErrTokenNoProvided is returned when no token is provided.
 	ErrTokenNoProvided = errors.New("no token provided")
+
 	// ErrTokenInvalid is returned when a certain token is invalid.
 	ErrTokenInvalid = errors.New("token is not valid")
-	// ErrTokenMalformed is returned when the token doesn't match the expected token form.
-	// 	Example: JWT should have 3 parts, header, payload and signature.
-	ErrTokenMalformed = errors.New("token is malformed")
-
-	// ErrJWTNoHeader is returned when a certain JWT contains no header.
-	ErrJWTNoHeader = errors.New("jwt contains no header")
-
-	// ErrJWTNoPayload is returned when a certain JWT contains no payload.
-	ErrJWTNoPayload = errors.New("jwt contains no payload")
-
-	// ErrJWTNoSignature is returned when a certain JWt contains no signature.
-	ErrJWTNoSignature = errors.New("jwt contains no signature")
 )
 
 // auth0 is an Authentication implementation using Auth0 as an authentication provider.
@@ -53,19 +43,19 @@ func (auth *auth0) validateJWT(token string) error {
 	}
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
-		return ErrTokenMalformed
+		return fmt.Errorf("%w: malformed", ErrTokenInvalid)
 	}
 	header := parts[0]
 	payload := parts[1]
 	sig := parts[2]
 	if len(header) == 0 {
-		return ErrJWTNoHeader
+		return fmt.Errorf("%w: no jwt header", ErrTokenInvalid)
 	}
 	if len(payload) == 0 {
-		return ErrJWTNoPayload
+		return fmt.Errorf("%w: no jwt payload", ErrTokenInvalid)
 	}
 	if len(sig) == 0 {
-		return ErrJWTNoSignature
+		return fmt.Errorf("%w: no jwt signature", ErrTokenInvalid)
 	}
 	return nil
 }
