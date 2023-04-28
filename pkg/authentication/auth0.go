@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	// ErrTokenNoProvided is returned when no token is provided.
-	ErrTokenNoProvided = errors.New("no token provided")
+	// ErrTokenNotProvided is returned when no token is provided.
+	ErrTokenNotProvided = errors.New("no token provided")
 
 	// ErrTokenInvalid is returned when a certain token is invalid.
 	ErrTokenInvalid = errors.New("token is not valid")
@@ -39,7 +39,7 @@ func (auth *auth0) VerifyJWT(ctx context.Context, token string) error {
 // validateJWT validates that the given token is a valid JWT.
 func (auth *auth0) validateJWT(token string) error {
 	if len(token) == 0 {
-		return ErrTokenNoProvided
+		return ErrTokenNotProvided
 	}
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
