@@ -1,26 +1,28 @@
 # Auth
 
-Auth is a gRPC service implementation of the fine-grained [Authorization API](https://github.com/OpenSourceRobotics/api).
+Auth is an open source library for adding authentication and authorization to web services. 
 
-It is capable of defining users and organizations, and handling authorization for them. The specific authorization 
-scheme can be configured through the selection of modular authentication backends.
+It helps developers reducing the amount of time needed to set up an auth layer in their applications, allowing them to focus on developing new features instead.
 
-This service does not handle authentication. It assumes that all requests reaching it are coming from trusted sources
-and does not perform any validation. It is meant for deployment in a private environment.
+*DISCLAIMER*: This library is under active development and may introduce unscheduled breaking changes in the near future.
 
-## Setup
+## Install
 
-The application is currently configured through the use of environment variables. The `.env.example` file provides 
-an example file with all configuration options with sensible defaults. It is recommended to make a copy and edit that 
-file to configure the service.
+```shell
+go get github.com/gazebo-web/auth
+```
 
-### Authorization Backends
+## Examples
+See the `example/` folder for a variety of examples on how to use this library.
 
-Authorization is enforced using authorization backend implementations, which allow interfacing with different 
-authorization systems.
+| Use case     | Example                                                                                                 |
+|--------------|---------------------------------------------------------------------------------------------------------|
+| HTTP  server | [example/authentication/http](https://github.com/gazebo-web/auth/tree/main/example/authentication/http) |
+| gRPC server  | N/A                                                                                                     |
 
-All backend implementations guarantee the same behavior through the implementation of an authorization interface.
+## Contribute
+There are many ways to contribute to this library
 
-The authorization backend is selected from a fixed set of options with the `AUTH_BACKEND` environment variable. Note 
-that each authorization backend might require additional configuration options specific to the implementation. For 
-information on backend configuration values, refer to their documentation.
+- Reviewing the source code changes.
+- Report new bugs.
+- Suggest new changes.
