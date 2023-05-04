@@ -10,8 +10,8 @@ import (
 // Extractor extracts a string value from an HTTP request. It's usually used to extract a header from an HTTP request,
 // but can also be used for extracting a user and password from the body.
 //
-//	There are a few implementations already provided by the request package, for example:
-//	Bearer tokens: request.BearerExtractor
+// There are a few implementations already provided by the request package, for example:
+// Bearer tokens: request.BearerExtractor
 type Extractor = request.Extractor
 
 // Middleware is used to modify or augment the behavior of an HTTP request handler.
