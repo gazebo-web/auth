@@ -1,7 +1,7 @@
 # Auth
 
 Auth is an open source library for adding authentication and authorization to web services. 
-It helps developers reducing the amount of time needed to set up an auth layer in their applications, allowing them to focus on developing new features instead.
+Its objective is to reduce the amount of time needed to set up an auth layer in applications, allowing them to focus on developing new features instead.
 
 *DISCLAIMER*: This library is under active development and may introduce unscheduled breaking changes in the near future.
 
