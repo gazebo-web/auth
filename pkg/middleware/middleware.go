@@ -19,12 +19,12 @@ type Middleware func(http.Handler) http.Handler
 
 // BearerToken returns a Middleware for authenticating users using Bearer Tokens in JWT format.
 func BearerToken(authentication authentication.Authentication) Middleware {
-	return newMiddleware(authentication.VerifyJWT, request.BearerExtractor{})
+	return newTokenMiddleware(authentication.VerifyJWT, request.BearerExtractor{})
 }
 
-// newMiddleware initializes a generic middleware that uses token authentication. It attempts to extract the tokens from
+// newTokenMiddleware initializes a generic middleware that uses token authentication. It attempts to extract the tokens from
 // the HTTP request, and verifies the access token is valid to continue to the next element in the middleware chain.
-func newMiddleware(verify authentication.TokenAuthentication, extractors ...Extractor) Middleware {
+func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ...Extractor) Middleware {
 	e := request.MultiExtractor(extractors)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
