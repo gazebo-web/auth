@@ -30,15 +30,15 @@ func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string)
 // NewFirebaseWithTokenVerifier initializes a new Authentication implementation using Firebase.
 // You can read more about Verifying ID tokens with Firebase: https://firebase.google.com/docs/auth/admin/verify-id-tokens
 //
-//		client, err := app.Auth(ctx)
-//		if err != nil {
-//	       log.Fatalf("error getting Auth client: %v\n", err)
-//		}
-//		auth := NewFirebaseWithTokenVerifier(client)
-//		err := auth.VerifyJWT(ctx, token)
-//		if err != nil {
-//	       log.Fatalf("failed to verify jwt: %v\n", err)
-//		}
+//	client, err := app.Auth(ctx)
+//	if err != nil {
+//		log.Fatalf("error getting Auth client: %v\n", err)
+//	}
+//
+//	auth := NewFirebaseWithTokenVerifier(client)
+//	if err := auth.VerifyJWT(ctx, token); err != nil {
+//		log.Fatalf("failed to verify jwt: %v\n", err)
+//	}
 func NewFirebaseWithTokenVerifier(firebaseAuth FirebaseTokenVerifier) Authentication {
 	return &firebaseAuthentication{
 		firebaseAuth: firebaseAuth,
