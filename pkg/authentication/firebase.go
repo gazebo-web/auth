@@ -63,6 +63,11 @@ func (auth *firebaseRefresher) VerifyIDToken(ctx context.Context, idToken string
 
 // NewFirebaseRefresher initializes a new FirebaseTokenVerifier implementation using a Firebase application, and it's in
 // charge of refreshing the public key used to verify tokens every time a new key rotation happens.
+//
+//	auth := NewFirebaseWithTokenVerifier(NewFirebaseRefresher(app))
+//	if err := auth.VerifyJWT(ctx, token); err != nil {
+//		log.Fatalf("failed to verify jwt: %v\n", err)
+//	}
 func NewFirebaseRefresher(app *firebase.App) FirebaseTokenVerifier {
 	return &firebaseRefresher{
 		app: app,
