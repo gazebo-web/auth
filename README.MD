@@ -24,14 +24,6 @@ some integrations for different auth providers.
 
 `*` To be implemented
 
-## Examples
-See the `example/` folder for a variety of examples on how to use this library.
-
-| Use case     | Example                                                                                                 |
-|--------------|---------------------------------------------------------------------------------------------------------|
-| HTTP  server | [example/authentication/http](https://github.com/gazebo-web/auth/tree/main/example/authentication/http) |
-| gRPC server  | N/A                                                                                                     |
-
 ## Contribute
 There are many ways to contribute to this library
 
