@@ -6,8 +6,12 @@ import (
 	"firebase.google.com/go/v4/auth"
 )
 
-// FirebaseTokenVerifier contains a method that allows verifying a Token signed by Firebase.
+// FirebaseTokenVerifier verifies a Token signed by Firebase. It was created to allow developers to mock VerifyIDToken
+// calls when testing.
 type FirebaseTokenVerifier interface {
+	// VerifyIDToken verifies a Token signed by Firebase. The idToken is the bearer token from an HTTP request:
+	//	HTTP headers:
+	//	- Authorization: Bearer <idToken>
 	VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error)
 }
 
