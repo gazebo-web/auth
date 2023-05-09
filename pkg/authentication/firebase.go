@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"context"
-	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 )
 
@@ -47,33 +46,5 @@ func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string)
 func NewFirebaseWithTokenVerifier(firebaseAuth FirebaseTokenVerifier) Authentication {
 	return &firebaseAuthentication{
 		firebaseAuth: firebaseAuth,
-	}
-}
-
-// firebaseRefresher uses the firebase application to refresh the keys used to verify the token signature.
-// The firebase.App has an internal mechanism to avoid repeating this operation for every request.
-type firebaseRefresher struct {
-	app *firebase.App
-}
-
-// VerifyIDToken gets a new public key in case a key rotation has been requested, and verifies the given token.
-func (auth *firebaseRefresher) VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error) {
-	client, err := auth.app.Auth(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return client.VerifyIDToken(ctx, idToken)
-}
-
-// NewFirebaseRefresher initializes a new FirebaseTokenVerifier implementation using a Firebase application, and it's in
-// charge of refreshing the public key used to verify tokens every time a new key rotation happens.
-//
-//	auth := NewFirebaseWithTokenVerifier(NewFirebaseRefresher(app))
-//	if err := auth.VerifyJWT(ctx, token); err != nil {
-//		log.Fatalf("failed to verify jwt: %v\n", err)
-//	}
-func NewFirebaseRefresher(app *firebase.App) FirebaseTokenVerifier {
-	return &firebaseRefresher{
-		app: app,
 	}
 }
