@@ -4,7 +4,6 @@ import (
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
-	"log"
 )
 
 // FirebaseTokenVerifier verifies a Token signed by Firebase. It was created to allow developers to mock VerifyIDToken
@@ -16,7 +15,7 @@ type FirebaseTokenVerifier interface {
 	VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error)
 }
 
-// firebaseAuthentication is a Authentication implementation using Firebase.
+// firebaseAuthentication is an Authentication implementation using Firebase.
 type firebaseAuthentication struct {
 	firebaseAuth FirebaseTokenVerifier
 }
@@ -51,15 +50,28 @@ func NewFirebaseWithTokenVerifier(firebaseAuth FirebaseTokenVerifier) Authentica
 	}
 }
 
-// firebaseAuth uses the firebase application to refresh the keys used to verify the token signature.
-// The firebase.App has an internal mechanism to avoid repeating this operation for every request.
+// firebaseAuth wraps a standard Firebase application object to implement internal interfaces.
 type firebaseAuth struct {
 	client *auth.Client
+	app    *firebase.App
 }
 
 // VerifyIDToken gets a new public key in case a key rotation has been requested, and verifies the given token.
 func (auth *firebaseAuth) VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error) {
-	return auth.client.VerifyIDToken(ctx, idToken)
+	client, err := auth.Client()
+	if err != nil {
+		return nil, err
+	}
+	return client.VerifyIDToken(ctx, idToken)
+}
+
+// Client returns the underlying authentication client used to perform auth operations on Firebase.
+func (auth *firebaseAuth) Client() (*auth.Client, error) {
+	var err error
+	if auth.client == nil {
+		auth.client, err = auth.app.Auth(context.Background())
+	}
+	return auth.client, err
 }
 
 // NewFirebase initializes a new FirebaseTokenVerifier implementation using a Firebase application, and it's in
@@ -70,11 +82,7 @@ func (auth *firebaseAuth) VerifyIDToken(ctx context.Context, idToken string) (*a
 //		log.Fatalf("failed to verify jwt: %v\n", err)
 //	}
 func NewFirebase(app *firebase.App) FirebaseTokenVerifier {
-	client, err := app.Auth(context.Background())
-	if err != nil {
-		log.Fatalf("failed to initialize Firebase client: %v\n", err)
-	}
 	return &firebaseAuth{
-		client: client,
+		app: app,
 	}
 }
