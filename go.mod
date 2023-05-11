@@ -3,8 +3,8 @@ module github.com/gazebo-web/auth
 go 1.19
 
 require (
+	firebase.google.com/go/v4 v4.11.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
-	github.com/rs/cors v1.9.0
 	github.com/stretchr/testify v1.8.2
 )
 
@@ -16,7 +16,6 @@ require (
 	cloud.google.com/go/iam v0.13.0 // indirect
 	cloud.google.com/go/longrunning v0.4.1 // indirect
 	cloud.google.com/go/storage v1.30.1 // indirect
-	firebase.google.com/go/v4 v4.11.0 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
