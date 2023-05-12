@@ -4,7 +4,6 @@ import (
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
-	"log"
 )
 
 // FirebaseTokenVerifier verifies a Token signed by Firebase. It was created to allow developers to mock VerifyIDToken
@@ -65,16 +64,20 @@ func (auth *firebaseAuth) VerifyIDToken(ctx context.Context, idToken string) (*a
 // NewFirebase initializes a new FirebaseTokenVerifier implementation using a Firebase application, and it's in
 // charge of refreshing the public key used to verify tokens every time a new key rotation happens.
 //
-//	auth := NewFirebaseWithTokenVerifier(NewFirebase(app))
+//	fbAuth, err := NewFirebase(app)
+//	if err != nil {
+//		log.Fatalf("failed to initialize firebase aauthentication: %v\n", err)
+//	}
+//	auth := NewFirebaseWithTokenVerifier()
 //	if err := auth.VerifyJWT(ctx, token); err != nil {
 //		log.Fatalf("failed to verify jwt: %v\n", err)
 //	}
-func NewFirebase(app *firebase.App) FirebaseTokenVerifier {
+func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 	client, err := app.Auth(context.Background())
 	if err != nil {
-		log.Fatalf("failed to initialize Firebase client: %v\n", err)
+		return nil, err
 	}
 	return &firebaseAuth{
 		client: client,
-	}
+	}, nil
 }
