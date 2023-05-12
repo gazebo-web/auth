@@ -68,7 +68,7 @@ func (auth *firebaseAuth) VerifyIDToken(ctx context.Context, idToken string) (*a
 //	if err != nil {
 //		log.Fatalf("failed to initialize firebase aauthentication: %v\n", err)
 //	}
-//	auth := NewFirebaseWithTokenVerifier()
+//	auth := NewFirebaseWithTokenVerifier(fbAuth)
 //	if err := auth.VerifyJWT(ctx, token); err != nil {
 //		log.Fatalf("failed to verify jwt: %v\n", err)
 //	}
