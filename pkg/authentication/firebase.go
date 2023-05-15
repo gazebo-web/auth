@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"context"
+	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 )
 
@@ -47,4 +48,36 @@ func NewFirebaseWithTokenVerifier(firebaseAuth FirebaseTokenVerifier) Authentica
 	return &firebaseAuthentication{
 		firebaseAuth: firebaseAuth,
 	}
+}
+
+// firebaseAuth uses the firebase application to refresh the keys used to verify the token signature.
+// The firebase.App has an internal mechanism to avoid repeating this operation for every request.
+type firebaseAuth struct {
+	client *auth.Client
+}
+
+// VerifyIDToken gets a new public key in case a key rotation has been requested, and verifies the given token.
+func (auth *firebaseAuth) VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error) {
+	return auth.client.VerifyIDToken(ctx, idToken)
+}
+
+// NewFirebase initializes a new FirebaseTokenVerifier implementation using a Firebase application, and it's in
+// charge of refreshing the public key used to verify tokens every time a new key rotation happens.
+//
+//	fbAuth, err := NewFirebase(app)
+//	if err != nil {
+//		log.Fatalf("failed to initialize firebase authentication: %v\n", err)
+//	}
+//	auth := NewFirebaseWithTokenVerifier(fbAuth)
+//	if err := auth.VerifyJWT(ctx, token); err != nil {
+//		log.Fatalf("failed to verify jwt: %v\n", err)
+//	}
+func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
+	client, err := app.Auth(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return &firebaseAuth{
+		client: client,
+	}, nil
 }
