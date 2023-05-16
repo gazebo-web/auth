@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: daily
     commit-message:
-      prefix: ":arrow_double_up:"
+      prefix: ":arrow_up:"
     open-pull-requests-limit: 3
   - package-ecosystem: "github-actions"
     directory: "/"
