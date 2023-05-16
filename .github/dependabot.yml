@@ -5,18 +5,18 @@ updates:
     schedule:
       interval: daily
     commit-message:
-      prefix: ":seedling:"
+      prefix: ":arrow_double_up:"
     open-pull-requests-limit: 3
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     commit-message:
-      prefix: ":seedling:"
+      prefix: ":arrow_forward:"
   - package-ecosystem: docker
     directory: "/"
     schedule:
       interval: daily
     commit-message:
-      prefix: ":seedling:"
+      prefix: ":whale:"
     open-pull-requests-limit: 3
