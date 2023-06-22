@@ -20,18 +20,18 @@ type auth0 struct {
 }
 
 // VerifyJWT verifies that the given token is a valid JWT and was correctly signed by Auth0.
-func (auth *auth0) VerifyJWT(ctx context.Context, token string) error {
+func (auth *auth0) VerifyJWT(ctx context.Context, token string) (jwt.Claims, error) {
 	if err := validateJWT(token); err != nil {
-		return err
+		return nil, err
 	}
 	parsedToken, err := jwt.Parse(token, auth.keyFunc)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !parsedToken.Valid {
-		return ErrTokenInvalid
+		return nil, ErrTokenInvalid
 	}
-	return nil
+	return parsedToken.Claims, nil
 }
 
 func (auth *auth0) keyFunc(token *jwt.Token) (interface{}, error) {

@@ -3,6 +3,7 @@ package authentication
 import (
 	"context"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"strings"
 )
 
@@ -13,7 +14,7 @@ type TokenAuthentication func(context.Context, string) error
 // Auth0, Google Identity Platform, and such.
 type Authentication interface {
 	// VerifyJWT verifies that the given token is a valid JWT and was correctly signed by the Authentication provider.
-	VerifyJWT(ctx context.Context, token string) error
+	VerifyJWT(ctx context.Context, token string) (jwt.Claims, error)
 }
 
 // validateJWT validates that the given token is a valid JWT.

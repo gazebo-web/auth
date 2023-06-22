@@ -2,8 +2,11 @@ package authentication
 
 import (
 	"context"
+	"errors"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 // FirebaseTokenVerifier verifies a Token signed by Firebase. It was created to allow developers to mock VerifyIDToken
@@ -15,21 +18,23 @@ type FirebaseTokenVerifier interface {
 	VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error)
 }
 
-// firebaseAuthentication is a Authentication implementation using Firebase.
+// firebaseAuthentication is an Authentication implementation using Firebase.
 type firebaseAuthentication struct {
 	firebaseAuth FirebaseTokenVerifier
 }
 
 // VerifyJWT verifies that the given Token is a valid JWT and was correctly signed by Firebase.
-func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string) error {
+func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string) (jwt.Claims, error) {
 	if err := validateJWT(token); err != nil {
-		return err
+		return nil, err
 	}
-	_, err := auth.firebaseAuth.VerifyIDToken(ctx, token)
+
+	verifiedToken, err := auth.firebaseAuth.VerifyIDToken(ctx, token)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return newFirebaseClaims(*verifiedToken), nil
 }
 
 // NewFirebaseWithTokenVerifier initializes a new Authentication implementation using Firebase.
@@ -41,9 +46,16 @@ func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string)
 //	}
 //
 //	auth := NewFirebaseWithTokenVerifier(client)
-//	if err := auth.VerifyJWT(ctx, token); err != nil {
+//	if claims, err := auth.VerifyJWT(ctx, token); err != nil {
 //		log.Fatalf("failed to verify jwt: %v\n", err)
 //	}
+//
+//	sub, err := claims.GetSubject()
+//	if err != nil {
+//		log.Fatalf("missing subject: %v\n", err)
+//	}
+//
+//	log.Println("Subject:", sub)
 func NewFirebaseWithTokenVerifier(firebaseAuth FirebaseTokenVerifier) Authentication {
 	return &firebaseAuthentication{
 		firebaseAuth: firebaseAuth,
@@ -69,9 +81,8 @@ func (auth *firebaseAuth) VerifyIDToken(ctx context.Context, idToken string) (*a
 //		log.Fatalf("failed to initialize firebase authentication: %v\n", err)
 //	}
 //	auth := NewFirebaseWithTokenVerifier(fbAuth)
-//	if err := auth.VerifyJWT(ctx, token); err != nil {
-//		log.Fatalf("failed to verify jwt: %v\n", err)
-//	}
+//
+// See the NewFirebaseWithTokenVerifier documentation for more information on how to use the token verifier.
 func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 	client, err := app.Auth(context.Background())
 	if err != nil {
@@ -80,4 +91,45 @@ func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 	return &firebaseAuth{
 		client: client,
 	}, nil
+}
+
+var _ jwt.Claims = (*firebaseClaims)(nil)
+
+// firebaseClaims implements the jwt.Claims interface on auth.Token.
+type firebaseClaims auth.Token
+
+// GetExpirationTime gets the expiration time (exp) from the JWT.
+func (ft firebaseClaims) GetExpirationTime() (*jwt.NumericDate, error) {
+	return jwt.NewNumericDate(time.Unix(ft.Expires, 0)), nil
+}
+
+// GetIssuedAt gets the issues at value (iat) from the JWT.
+func (ft firebaseClaims) GetIssuedAt() (*jwt.NumericDate, error) {
+	return jwt.NewNumericDate(time.Unix(ft.IssuedAt, 0)), nil
+}
+
+// GetNotBefore gets the not-before time (nbf) from the JWT.
+// This method is not implemented given that Firebase doesn't provide support for this value.
+func (ft firebaseClaims) GetNotBefore() (*jwt.NumericDate, error) {
+	return nil, errors.New("not implemented")
+}
+
+// GetIssuer gets the issuer (iss) from the JWT.
+func (ft firebaseClaims) GetIssuer() (string, error) {
+	return ft.Issuer, nil
+}
+
+// GetSubject gets the subject (sub) from the JWT.
+func (ft firebaseClaims) GetSubject() (string, error) {
+	return ft.Subject, nil
+}
+
+// GetAudience gets the audiences (aud) from the JWT.
+func (ft firebaseClaims) GetAudience() (jwt.ClaimStrings, error) {
+	return []string{ft.Audience}, nil
+}
+
+// newFirebaseClaims initializes a new set of claims from the given firebase token.
+func newFirebaseClaims(token auth.Token) jwt.Claims {
+	return firebaseClaims(token)
 }
