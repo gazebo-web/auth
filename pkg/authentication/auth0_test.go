@@ -28,6 +28,7 @@ func (suite *auth0TestSuite) SetupSuite() {
 	var err error
 	suite.Require().NoError(err)
 	suite.token = jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims(map[string]interface{}{
+		"sub": "gazebo-web",
 		"exp": time.Hour,
 		"iat": time.Now(),
 	}))
@@ -51,17 +52,7 @@ func (suite *auth0TestSuite) SetupTest() {
 }
 
 func (suite *auth0TestSuite) TestVerifyCredentials_InvalidToken() {
-	ctx := context.Background()
-
-	suite.Assert().Error(suite.authentication.VerifyJWT(ctx, ""))
-
-	suite.Assert().Error(suite.authentication.VerifyJWT(ctx, "1234"))
-
-	suite.Assert().Error(suite.authentication.VerifyJWT(ctx, ".eyJpc3MiOiJodHRwczovL215LWRvbWFpbi5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8MTIzNDU2IiwiYXVkIjpbImh0dHBzOi8vZXhhbXBsZS5jb20vaGVhbHRoLWFwaSIsImh0dHBzOi8vbXktZG9tYWluLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJhenAiOiJteV9jbGllbnRfaWQiLCJleHAiOjEzMTEyODE5NzAsImlhdCI6MTMxMTI4MDk3MCwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSByZWFkOnBhdGllbnRzIHJlYWQ6YWRtaW4ifQ.9QkZxtBr6Z5uuZEYNFfjRNBlGhY5hGzBUG71DgF-IJY"))
-
-	suite.Assert().Error(suite.authentication.VerifyJWT(ctx, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..9QkZxtBr6Z5uuZEYNFfjRNBlGhY5hGzBUG71DgF-IJY"))
-
-	suite.Assert().Error(suite.authentication.VerifyJWT(ctx, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL215LWRvbWFpbi5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8MTIzNDU2IiwiYXVkIjpbImh0dHBzOi8vZXhhbXBsZS5jb20vaGVhbHRoLWFwaSIsImh0dHBzOi8vbXktZG9tYWluLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJhenAiOiJteV9jbGllbnRfaWQiLCJleHAiOjEzMTEyODE5NzAsImlhdCI6MTMxMTI4MDk3MCwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSByZWFkOnBhdGllbnRzIHJlYWQ6YWRtaW4ifQ."))
+	AssertTokenValidation(suite.T(), suite.authentication)
 }
 
 func (suite *auth0TestSuite) TestVerifyCredentials_Success() {
@@ -70,7 +61,13 @@ func (suite *auth0TestSuite) TestVerifyCredentials_Success() {
 	signedToken, err := suite.token.SignedString(suite.privateKey)
 	suite.Require().NoError(err)
 
-	suite.Assert().NoError(suite.authentication.VerifyJWT(ctx, signedToken))
+	claims, err := suite.authentication.VerifyJWT(ctx, signedToken)
+	suite.Assert().NoError(err)
+
+	sub, err := claims.GetSubject()
+	suite.Assert().NoError(err)
+	suite.Assert().NotEmpty(sub)
+	suite.Assert().Equal("gazebo-web", sub)
 }
 
 func (suite *auth0TestSuite) TearDownTest() {
