@@ -21,10 +21,10 @@ func TestFirebaseTestSuite(t *testing.T) {
 }
 
 func (suite *firebaseTestSuite) SetupSuite() {
-	suite.token = newFirebaseToken()
+	suite.token = NewFirebaseToken()
 }
 
-func newFirebaseToken() auth.Token {
+func NewFirebaseToken() auth.Token {
 	return auth.Token{
 		AuthTime: 3600,
 		Issuer:   "firebase",
@@ -92,9 +92,9 @@ func verifierWithError(err error) FirebaseTokenVerifier {
 }
 
 func TestNewFirebaseClaims(t *testing.T) {
-	token := newFirebaseToken()
+	token := NewFirebaseToken()
 
-	claims := newFirebaseClaims(token)
+	claims := NewFirebaseClaims(token)
 	assert.NotNil(t, claims)
 
 	date, err := claims.GetExpirationTime()

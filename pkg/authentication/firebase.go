@@ -34,7 +34,7 @@ func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string)
 		return nil, err
 	}
 
-	return newFirebaseClaims(*verifiedToken), nil
+	return NewFirebaseClaims(*verifiedToken), nil
 }
 
 // NewFirebaseWithTokenVerifier initializes a new Authentication implementation using Firebase.
@@ -129,7 +129,7 @@ func (ft firebaseClaims) GetAudience() (jwt.ClaimStrings, error) {
 	return []string{ft.Audience}, nil
 }
 
-// newFirebaseClaims initializes a new set of claims from the given firebase token.
-func newFirebaseClaims(token auth.Token) jwt.Claims {
+// NewFirebaseClaims initializes a new set of claims from the given firebase token.
+func NewFirebaseClaims(token auth.Token) jwt.Claims {
 	return firebaseClaims(token)
 }
