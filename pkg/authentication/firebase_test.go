@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"firebase.google.com/go/v4/auth"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -94,8 +93,8 @@ func verifierWithError(err error) FirebaseTokenVerifier {
 
 func TestNewFirebaseClaims(t *testing.T) {
 	token := newFirebaseToken()
-	var claims jwt.Claims
-	claims = newFirebaseClaims(token)
+
+	claims := newFirebaseClaims(token)
 	assert.NotNil(t, claims)
 
 	date, err := claims.GetExpirationTime()
