@@ -133,3 +133,19 @@ func (ft firebaseClaims) GetAudience() (jwt.ClaimStrings, error) {
 func NewFirebaseClaims(token auth.Token) jwt.Claims {
 	return firebaseClaims(token)
 }
+
+// NewFirebaseTestToken creates a new auth.Token for testing purposes.
+func NewFirebaseTestToken() auth.Token {
+	return auth.Token{
+		AuthTime: 3600,
+		Issuer:   "firebase",
+		Audience: "gazebosim.org",
+		Expires:  time.Now().Add(1 * time.Hour).Unix(),
+		IssuedAt: time.Now().Unix(),
+		Subject:  "gazebo-web",
+		UID:      "1234",
+		Firebase: auth.FirebaseInfo{
+			SignInProvider: "google",
+		},
+	}
+}

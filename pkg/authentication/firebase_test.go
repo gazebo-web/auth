@@ -21,22 +21,7 @@ func TestFirebaseTestSuite(t *testing.T) {
 }
 
 func (suite *firebaseTestSuite) SetupSuite() {
-	suite.token = NewFirebaseToken()
-}
-
-func NewFirebaseToken() auth.Token {
-	return auth.Token{
-		AuthTime: 3600,
-		Issuer:   "firebase",
-		Audience: "gazebosim.org",
-		Expires:  time.Now().Add(1 * time.Hour).Unix(),
-		IssuedAt: time.Now().Unix(),
-		Subject:  "gazebo-web",
-		UID:      "1234",
-		Firebase: auth.FirebaseInfo{
-			SignInProvider: "google",
-		},
-	}
+	suite.token = NewFirebaseTestToken()
 }
 
 func (suite *firebaseTestSuite) TestVerifyCredentials_InvalidToken() {
@@ -92,7 +77,7 @@ func verifierWithError(err error) FirebaseTokenVerifier {
 }
 
 func TestNewFirebaseClaims(t *testing.T) {
-	token := NewFirebaseToken()
+	token := NewFirebaseTestToken()
 
 	claims := NewFirebaseClaims(token)
 	assert.NotNil(t, claims)
