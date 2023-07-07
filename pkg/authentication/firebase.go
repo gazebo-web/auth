@@ -19,21 +19,23 @@ type FirebaseTokenVerifier interface {
 	VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error)
 }
 
-// firebaseAuthentication is a Authentication implementation using Firebase.
+// firebaseAuthentication is an Authentication implementation using Firebase.
 type firebaseAuthentication struct {
 	firebaseAuth FirebaseTokenVerifier
 }
 
 // VerifyJWT verifies that the given Token is a valid JWT and was correctly signed by Firebase.
-func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string) error {
+func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string) (jwt.Claims, error) {
 	if err := validateJWT(token); err != nil {
-		return err
+		return nil, err
 	}
-	_, err := auth.firebaseAuth.VerifyIDToken(ctx, token)
+
+	verifiedToken, err := auth.firebaseAuth.VerifyIDToken(ctx, token)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return NewFirebaseClaims(*verifiedToken), nil
 }
 
 // NewFirebaseWithTokenVerifier initializes a new Authentication implementation using Firebase.
@@ -45,9 +47,16 @@ func (auth *firebaseAuthentication) VerifyJWT(ctx context.Context, token string)
 //	}
 //
 //	auth := NewFirebaseWithTokenVerifier(client)
-//	if err := auth.VerifyJWT(ctx, token); err != nil {
+//	if claims, err := auth.VerifyJWT(ctx, token); err != nil {
 //		log.Fatalf("failed to verify jwt: %v\n", err)
 //	}
+//
+//	sub, err := claims.GetSubject()
+//	if err != nil {
+//		log.Fatalf("missing subject: %v\n", err)
+//	}
+//
+//	log.Println("Subject:", sub)
 func NewFirebaseWithTokenVerifier(firebaseAuth FirebaseTokenVerifier) Authentication {
 	return &firebaseAuthentication{
 		firebaseAuth: firebaseAuth,
@@ -73,9 +82,8 @@ func (auth *firebaseAuth) VerifyIDToken(ctx context.Context, idToken string) (*a
 //		log.Fatalf("failed to initialize firebase authentication: %v\n", err)
 //	}
 //	auth := NewFirebaseWithTokenVerifier(fbAuth)
-//	if err := auth.VerifyJWT(ctx, token); err != nil {
-//		log.Fatalf("failed to verify jwt: %v\n", err)
-//	}
+//
+// See the NewFirebaseWithTokenVerifier documentation for more information on how to use the token verifier.
 func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 	client, err := app.Auth(context.Background())
 	if err != nil {
