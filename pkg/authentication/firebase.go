@@ -87,6 +87,7 @@ func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 }
 
 var _ jwt.Claims = (*firebaseClaims)(nil)
+var _ EmailClaimer = (*firebaseClaims)(nil)
 
 // firebaseClaims implements the jwt.Claims interface on auth.Token.
 type firebaseClaims auth.Token
