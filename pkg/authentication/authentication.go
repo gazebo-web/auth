@@ -16,6 +16,13 @@ type Authentication interface {
 	VerifyJWT(ctx context.Context, token string) error
 }
 
+// EmailClaimer allows to get an email from a custom JWT claim.
+// NOTE: Not all authentication providers embed an email in their JWT.
+type EmailClaimer interface {
+	// GetEmail returns an email from a custom JWT claim.
+	GetEmail() (string, error)
+}
+
 // validateJWT validates that the given token is a valid JWT.
 func validateJWT(token string) error {
 	if len(token) == 0 {

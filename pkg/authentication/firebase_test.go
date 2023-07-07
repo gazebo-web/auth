@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"firebase.google.com/go/v4/auth"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"
 	"time"
@@ -87,4 +88,82 @@ func verifierWithToken(token *auth.Token) FirebaseTokenVerifier {
 
 func verifierWithError(err error) FirebaseTokenVerifier {
 	return testVerifier{Error: err}
+}
+
+func TestNewFirebaseClaims(t *testing.T) {
+	token := NewFirebaseTestToken()
+
+	claims := NewFirebaseClaims(token)
+	assert.NotNil(t, claims)
+
+	date, err := claims.GetExpirationTime()
+	assert.NoError(t, err)
+	assert.NotNil(t, date)
+	assert.True(t, time.Unix(token.Expires, 0).Equal(date.Time))
+
+	date, err = claims.GetIssuedAt()
+	assert.NoError(t, err)
+	assert.NotNil(t, date)
+	assert.True(t, time.Unix(token.IssuedAt, 0).Equal(date.Time))
+
+	_, err = claims.GetNotBefore()
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "not implemented")
+
+	iss, err := claims.GetIssuer()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, iss)
+	assert.Equal(t, token.Issuer, iss)
+
+	sub, err := claims.GetSubject()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, sub)
+	assert.Equal(t, token.Subject, sub)
+
+	aud, err := claims.GetAudience()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, aud)
+	assert.EqualValues(t, []string{token.Audience}, aud)
+}
+
+func TestNewFirebaseClaims_GetEmail(t *testing.T) {
+	assert.Implements(t, (*EmailClaimer)(nil), new(firebaseClaims))
+
+	token := NewFirebaseTestToken()
+	claims := NewFirebaseClaims(token)
+
+	email, ok := claims.(EmailClaimer)
+	assert.True(t, ok)
+
+	value, err := email.GetEmail()
+	assert.NoError(t, err)
+	assert.Equal(t, token.Claims["email"], value)
+}
+
+func TestNewFirebaseClaims_GetEmail_MissingValue(t *testing.T) {
+	assert.Implements(t, (*EmailClaimer)(nil), new(firebaseClaims))
+
+	token := NewFirebaseTestToken()
+	token.Claims = map[string]interface{}{}
+	claims := NewFirebaseClaims(token)
+
+	email, ok := claims.(EmailClaimer)
+	assert.True(t, ok)
+
+	_, err := email.GetEmail()
+	assert.Error(t, err)
+}
+
+func TestNewFirebaseClaims_GetEmail_InvalidValue(t *testing.T) {
+	token := NewFirebaseTestToken()
+	token.Claims = map[string]interface{}{
+		"email": 1234,
+	}
+	claims := NewFirebaseClaims(token)
+
+	email, ok := claims.(EmailClaimer)
+	assert.True(t, ok)
+
+	_, err := email.GetEmail()
+	assert.Error(t, err)
 }

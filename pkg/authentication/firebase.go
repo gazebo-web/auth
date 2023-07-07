@@ -2,8 +2,12 @@ package authentication
 
 import (
 	"context"
+	"errors"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"fmt"
+	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
 // FirebaseTokenVerifier verifies a Token signed by Firebase. It was created to allow developers to mock VerifyIDToken
@@ -80,4 +84,87 @@ func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 	return &firebaseAuth{
 		client: client,
 	}, nil
+}
+
+var _ jwt.Claims = (*firebaseClaims)(nil)
+
+// firebaseClaims implements the jwt.Claims interface on auth.Token.
+type firebaseClaims auth.Token
+
+// GetEmail gets the firebase user's email address.
+func (ft firebaseClaims) GetEmail() (string, error) {
+	const key = "email"
+	v, err := ft.getCustomClaim(key)
+	if err != nil {
+		return "", err
+	}
+	email, ok := v.(string)
+	if !ok {
+		return "", fmt.Errorf("invalid %s value: should be a string", key)
+	}
+	return email, nil
+}
+
+// getCustomClaim gets the value from the given key.
+func (ft firebaseClaims) getCustomClaim(key string) (any, error) {
+	v, ok := ft.Claims[key]
+	if !ok {
+		return nil, fmt.Errorf("failed to get %s value", key)
+	}
+	return v, nil
+}
+
+// GetExpirationTime gets the expiration time (exp) from the JWT.
+func (ft firebaseClaims) GetExpirationTime() (*jwt.NumericDate, error) {
+	return jwt.NewNumericDate(time.Unix(ft.Expires, 0)), nil
+}
+
+// GetIssuedAt gets the issues at value (iat) from the JWT.
+func (ft firebaseClaims) GetIssuedAt() (*jwt.NumericDate, error) {
+	return jwt.NewNumericDate(time.Unix(ft.IssuedAt, 0)), nil
+}
+
+// GetNotBefore gets the not-before time (nbf) from the JWT.
+// This method is not implemented given that Firebase doesn't provide support for this value.
+func (ft firebaseClaims) GetNotBefore() (*jwt.NumericDate, error) {
+	return nil, errors.New("not implemented")
+}
+
+// GetIssuer gets the issuer (iss) from the JWT.
+func (ft firebaseClaims) GetIssuer() (string, error) {
+	return ft.Issuer, nil
+}
+
+// GetSubject gets the subject (sub) from the JWT.
+func (ft firebaseClaims) GetSubject() (string, error) {
+	return ft.Subject, nil
+}
+
+// GetAudience gets the audiences (aud) from the JWT.
+func (ft firebaseClaims) GetAudience() (jwt.ClaimStrings, error) {
+	return []string{ft.Audience}, nil
+}
+
+// NewFirebaseClaims initializes a new set of claims from the given firebase token.
+func NewFirebaseClaims(token auth.Token) jwt.Claims {
+	return firebaseClaims(token)
+}
+
+// NewFirebaseTestToken creates a new auth.Token for testing purposes.
+func NewFirebaseTestToken() auth.Token {
+	return auth.Token{
+		AuthTime: 3600,
+		Issuer:   "firebase",
+		Audience: "gazebosim.org",
+		Expires:  time.Now().Add(1 * time.Hour).Unix(),
+		IssuedAt: time.Now().Unix(),
+		Subject:  "gazebo-web",
+		UID:      "1234",
+		Firebase: auth.FirebaseInfo{
+			SignInProvider: "google",
+		},
+		Claims: map[string]interface{}{
+			"email": "test@gazebosim.org",
+		},
+	}
 }
