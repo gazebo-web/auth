@@ -5,6 +5,7 @@ import (
 	"errors"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
@@ -94,9 +95,33 @@ func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 }
 
 var _ jwt.Claims = (*firebaseClaims)(nil)
+var _ EmailClaimer = (*firebaseClaims)(nil)
 
 // firebaseClaims implements the jwt.Claims interface on auth.Token.
 type firebaseClaims auth.Token
+
+// GetEmail gets the firebase user's email address.
+func (ft firebaseClaims) GetEmail() (string, error) {
+	const key = "email"
+	v, err := ft.getCustomClaim(key)
+	if err != nil {
+		return "", err
+	}
+	email, ok := v.(string)
+	if !ok {
+		return "", fmt.Errorf("invalid %s value: should be a string", key)
+	}
+	return email, nil
+}
+
+// getCustomClaim gets the value from the given key.
+func (ft firebaseClaims) getCustomClaim(key string) (any, error) {
+	v, ok := ft.Claims[key]
+	if !ok {
+		return nil, fmt.Errorf("failed to get %s value: not found", key)
+	}
+	return v, nil
+}
 
 // GetExpirationTime gets the expiration time (exp) from the JWT.
 func (ft firebaseClaims) GetExpirationTime() (*jwt.NumericDate, error) {
@@ -146,6 +171,9 @@ func NewFirebaseTestToken() auth.Token {
 		UID:      "1234",
 		Firebase: auth.FirebaseInfo{
 			SignInProvider: "google",
+		},
+		Claims: map[string]interface{}{
+			"email": "test@gazebosim.org",
 		},
 	}
 }

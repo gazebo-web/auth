@@ -111,3 +111,45 @@ func TestNewFirebaseClaims(t *testing.T) {
 	assert.NotEmpty(t, aud)
 	assert.EqualValues(t, []string{token.Audience}, aud)
 }
+
+func TestNewFirebaseClaims_GetEmail(t *testing.T) {
+	assert.Implements(t, (*EmailClaimer)(nil), new(firebaseClaims))
+
+	token := NewFirebaseTestToken()
+	claims := NewFirebaseClaims(token)
+
+	email, ok := claims.(EmailClaimer)
+	assert.True(t, ok)
+
+	value, err := email.GetEmail()
+	assert.NoError(t, err)
+	assert.Equal(t, token.Claims["email"], value)
+}
+
+func TestNewFirebaseClaims_GetEmail_MissingValue(t *testing.T) {
+	assert.Implements(t, (*EmailClaimer)(nil), new(firebaseClaims))
+
+	token := NewFirebaseTestToken()
+	token.Claims = map[string]interface{}{}
+	claims := NewFirebaseClaims(token)
+
+	email, ok := claims.(EmailClaimer)
+	assert.True(t, ok)
+
+	_, err := email.GetEmail()
+	assert.Error(t, err)
+}
+
+func TestNewFirebaseClaims_GetEmail_InvalidValue(t *testing.T) {
+	token := NewFirebaseTestToken()
+	token.Claims = map[string]interface{}{
+		"email": 1234,
+	}
+	claims := NewFirebaseClaims(token)
+
+	email, ok := claims.(EmailClaimer)
+	assert.True(t, ok)
+
+	_, err := email.GetEmail()
+	assert.Error(t, err)
+}
