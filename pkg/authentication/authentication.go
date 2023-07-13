@@ -20,7 +20,7 @@ type Authentication interface {
 // EmailClaimer allows to get an email from a custom JWT claim.
 // NOTE: Not all authentication providers embed an email in their JWT.
 type EmailClaimer interface {
-	// GetEmail returns an email from a custom JWT claim.
+	// GetEmail returns the user's email from a custom JWT claim.
 	GetEmail() (string, error)
 }
 

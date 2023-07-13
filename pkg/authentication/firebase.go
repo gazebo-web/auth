@@ -118,7 +118,7 @@ func (ft firebaseClaims) GetEmail() (string, error) {
 func (ft firebaseClaims) getCustomClaim(key string) (any, error) {
 	v, ok := ft.Claims[key]
 	if !ok {
-		return nil, fmt.Errorf("failed to get %s value", key)
+		return nil, fmt.Errorf("failed to get %s value: not found", key)
 	}
 	return v, nil
 }
