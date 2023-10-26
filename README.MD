@@ -18,6 +18,7 @@ some integrations for different auth providers.
 | Type           | Provider                          |
 |----------------|-----------------------------------|
 | Authentication | Auth0                             |
+| Authentication | Firebase                          |
 | Authentication | Google Cloud - Identity Platform* |
 | Authorization  | SpiceDB*                          |
 
