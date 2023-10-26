@@ -3,11 +3,12 @@ package authentication
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
+
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
-	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"time"
 )
 
 // FirebaseTokenVerifier verifies a Token signed by Firebase. It was created to allow developers to mock VerifyIDToken
@@ -96,6 +97,7 @@ func NewFirebase(app *firebase.App) (FirebaseTokenVerifier, error) {
 
 var _ jwt.Claims = (*firebaseClaims)(nil)
 var _ EmailClaimer = (*firebaseClaims)(nil)
+var _ CustomClaimer = (*firebaseClaims)(nil)
 
 // firebaseClaims implements the jwt.Claims interface on auth.Token.
 type firebaseClaims auth.Token
@@ -103,7 +105,7 @@ type firebaseClaims auth.Token
 // GetEmail gets the firebase user's email address.
 func (ft firebaseClaims) GetEmail() (string, error) {
 	const key = "email"
-	v, err := ft.getCustomClaim(key)
+	v, err := ft.GetCustomClaim(key)
 	if err != nil {
 		return "", err
 	}
@@ -114,8 +116,8 @@ func (ft firebaseClaims) GetEmail() (string, error) {
 	return email, nil
 }
 
-// getCustomClaim gets the value from the given key.
-func (ft firebaseClaims) getCustomClaim(key string) (any, error) {
+// GetCustomClaim gets the value from the given key.
+func (ft firebaseClaims) GetCustomClaim(key string) (any, error) {
 	v, ok := ft.Claims[key]
 	if !ok {
 		return nil, fmt.Errorf("failed to get %s value: not found", key)
