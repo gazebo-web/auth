@@ -3,8 +3,9 @@ package authentication
 import (
 	"context"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	"strings"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // TokenAuthentication is the signature that a function should fulfill in order to verify an access token.
@@ -22,6 +23,13 @@ type Authentication interface {
 type EmailClaimer interface {
 	// GetEmail returns the user's email from a custom JWT claim.
 	GetEmail() (string, error)
+}
+
+// CustomClaimer allows getting custom claims from JWTs.
+type CustomClaimer interface {
+	// GetCustomClaim returns the value of the claim identified by the given key.
+	// If key does not exist, it returns an error instead.
+	GetCustomClaim(key string) (any, error)
 }
 
 // validateJWT validates that the given token is a valid JWT.
