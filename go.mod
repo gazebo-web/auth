@@ -5,7 +5,7 @@ go 1.19
 require (
 	firebase.google.com/go/v4 v4.13.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
