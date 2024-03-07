@@ -8,13 +8,22 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// TokenAuthentication is the signature that a function should fulfill in order to verify an access token.
-type TokenAuthentication func(context.Context, string) (jwt.Claims, error)
+// AccessTokenAuthentication defines the function signature for access token
+// validators.
+// These functions are used by BearerAccessTokenAuthFuncGRPC to validate
+// incoming access tokens are valid.
+type AccessTokenAuthentication func(context.Context, string) error
 
-// Authentication contains a set of methods to authenticate users through different authentication providers such as
-// Auth0, Google Identity Platform, and such.
+// JsonWebTokenAuthentication is the signature that a function should fulfill
+// in order to verify a JWT token.
+type JsonWebTokenAuthentication func(context.Context, string) (jwt.Claims, error)
+
+// Authentication contains a set of methods to authenticate users through
+// different authentication providers such as Auth0, Google Identity Platform,
+// and such.
 type Authentication interface {
-	// VerifyJWT verifies that the given token is a valid JWT and was correctly signed by the Authentication provider.
+	// VerifyJWT verifies that the given token is a valid JWT and was correctly
+	// signed by the Authentication provider.
 	VerifyJWT(ctx context.Context, token string) (jwt.Claims, error)
 }
 

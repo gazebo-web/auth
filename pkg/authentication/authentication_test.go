@@ -2,11 +2,12 @@ package authentication
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func AssertTokenValidation(t *testing.T, authentication Authentication) {
+func AssertJsonWebTokenValidation(t *testing.T, authentication Authentication) {
 	ctx := context.TODO()
 	_, err := authentication.VerifyJWT(ctx, "")
 	assert.Error(t, err)

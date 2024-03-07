@@ -3,11 +3,12 @@ package authentication
 import (
 	"context"
 	"errors"
+	"testing"
+	"time"
+
 	"firebase.google.com/go/v4/auth"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type firebaseTestSuite struct {
@@ -25,7 +26,7 @@ func (suite *firebaseTestSuite) SetupSuite() {
 }
 
 func (suite *firebaseTestSuite) TestVerifyCredentials_InvalidToken() {
-	AssertTokenValidation(suite.T(), suite.authentication)
+	AssertJsonWebTokenValidation(suite.T(), suite.authentication)
 }
 
 func (suite *firebaseTestSuite) TestVerifyCredentials_FirebaseReturnsError() {

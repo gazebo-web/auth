@@ -5,11 +5,12 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/stretchr/testify/suite"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/stretchr/testify/suite"
 )
 
 type auth0TestSuite struct {
@@ -52,7 +53,7 @@ func (suite *auth0TestSuite) SetupTest() {
 }
 
 func (suite *auth0TestSuite) TestVerifyCredentials_InvalidToken() {
-	AssertTokenValidation(suite.T(), suite.authentication)
+	AssertJsonWebTokenValidation(suite.T(), suite.authentication)
 }
 
 func (suite *auth0TestSuite) TestVerifyCredentials_Success() {
